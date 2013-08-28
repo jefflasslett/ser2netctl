@@ -1,5 +1,11 @@
 {-# LANGUAGE DeriveDataTypeable #-}
-module Options ( Options( .. ), defaultOptions, optionDescriptions, ArgumentException( .. ), usage_info ) where
+module Options ( Options( .. )
+               , defaultOptions
+               , optionDescriptions
+               , ArgumentException( .. )
+               , usage_info
+               , makeConfigLine
+               ) where
 
 import Control.Exception
 import Control.Monad
@@ -8,6 +14,7 @@ import Data.Maybe
 import System.Console.GetOpt
 import System.Exit
 import System.Posix.Files
+import System.Posix.Types
 
 import Safe
 
@@ -36,6 +43,8 @@ data Options = Options { optPort      :: String
                        , optForce     :: Bool
                        , optReload    :: Bool
                        , optConfig    :: String
+                       , optPid       :: ProcessID
+                       , optPidFile   :: String
                        }
                        deriving ( Show )
 
@@ -54,6 +63,8 @@ defaultOptions = Options { optPort      = ""
                          , optForce     = False
                          , optReload    = True
                          , optConfig    = "/etc/ser2net.conf"
+                         , optPid       = 0
+                         , optPidFile   = "/var/run/ser2net.pid"
                          }
 
 data ArgumentException = ArgException String deriving ( Show, Typeable )
@@ -114,6 +125,24 @@ readConfigArg arg opts =
     file_accessible <- fileAccess arg True True False
     when file_accessible $ throwIO $ ArgException ( "Permission problem with file \"" ++ arg ++ "\"" )
     return opts { optConfig = arg }
+
+readPidFileArg :: String -> Options -> IO Options
+readPidFileArg arg opts =
+  do
+    file_exists <- fileExist arg
+    unless file_exists $ throwIO ( ArgException ( "Daemon PID file \"" ++ arg ++ "\" doesn't exist" ) )
+    fs <- getFileStatus arg
+    unless ( isRegularFile fs ) $ throwIO $ ArgException ( "Daemon PID file \"" ++ arg ++ "\" is not a regular file" )
+    file_accessible <- fileAccess arg True False False
+    when file_accessible $ throwIO $ ArgException ( "Permission problem with file \"" ++ arg ++ "\"" )
+    return opts { optPidFile = arg }
+
+readPidArg :: String -> ProcessID
+readPidArg arg =
+  fromMaybe
+    ( throw $ ArgException ( "PID \"" ++ arg ++ "\" is invalid" ) )
+    ( readMay arg )
+
 
 
 {-
@@ -207,7 +236,15 @@ optionDescriptions =
   ( NoArg ( \opt -> return opt { optReload = False } ) )
       "If present, prevents the modified ser2net.conf from being reloaded by the daemon"
 
-  , Option "F" [ "config-file" ]
+  , Option "i" [ "pid" ]
+  ( ReqArg ( \arg opt -> return opt { optPid = readPidArg arg } ) "<pid>" )
+      "Use this to specify the PID of the ser2net daemon"
+
+  , Option "f" [ "pid-file" ]
+  ( ReqArg readPidFileArg "<PID file name>")
+      "Use this to specify the name of the ser2net daemon's PID file [Default: /var/run/ser2net.pid]"
+
+  , Option "c" [ "config-file" ]
   ( ReqArg readConfigArg "<conf file name>")
       "Use this to specify an alternative config file"
 
@@ -223,4 +260,6 @@ optionDescriptions =
 usage_info :: String
 usage_info =  usageInfo "ser2netctl add|remove|stop|start|update|show|restart|shutdown [options]" optionDescriptions
 
+makeConfigLine :: Options -> String
+makeConfigLine opts = undefined
 
