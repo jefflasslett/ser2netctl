@@ -34,12 +34,12 @@ data Options = Options { optPort      :: String
                        , optTty       :: String
                        , optTimeout   :: Int
                        , optMode      :: PM.PortMode
-                       , optBaud      :: BR.BaudRate
-                       , optDatabits  :: DB.DataBits
-                       , optStopBits  :: SB.StopBits
-                       , optParity    :: PA.Parity
-                       , optSwFc      :: Bool
-                       , optHwFc      :: Bool
+                       , optBaud      :: Maybe BR.BaudRate
+                       , optDatabits  :: Maybe DB.DataBits
+                       , optStopBits  :: Maybe SB.StopBits
+                       , optParity    :: Maybe PA.Parity
+                       , optSwFc      :: Maybe Bool
+                       , optHwFc      :: Maybe Bool
                        , optForce     :: Bool
                        , optReload    :: Bool
                        , optConfig    :: String
@@ -54,12 +54,12 @@ defaultOptions = Options { optPort      = ""
                          , optTty       = ""
                          , optTimeout   = 0
                          , optMode      = PM.Off
-                         , optBaud      = BR.B57600
-                         , optDatabits  = DB.EightDataBits
-                         , optStopBits  = SB.OneStopBit
-                         , optParity    = PA.None
-                         , optSwFc      = False
-                         , optHwFc      = False
+                         , optBaud      = Nothing
+                         , optDatabits  = Nothing
+                         , optStopBits  = Nothing
+                         , optParity    = Nothing
+                         , optSwFc      = Nothing
+                         , optHwFc      = Nothing
                          , optForce     = False
                          , optReload    = True
                          , optConfig    = "/etc/ser2net.conf"
@@ -205,27 +205,27 @@ optionDescriptions =
       "The mode or protocol used to talk to the serial device"
 
   , Option "b" [ "baud" ]
-  ( ReqArg ( \arg opt -> return opt { optBaud = readBaudArg arg } ) "<baud rate>" )
+  ( ReqArg ( \arg opt -> return opt { optBaud = Just $ readBaudArg arg } ) "<baud rate>" )
       "The baud rate that the serial device should talk at"
 
   , Option "w" [ "databits" ]
-  ( ReqArg ( \arg opt -> return opt { optDatabits = if arg == "7" then DB.SevenDataBits else DB.EightDataBits } ) "<7|8>" )
+  ( ReqArg ( \arg opt -> return opt { optDatabits = Just ( if arg == "7" then DB.SevenDataBits else DB.EightDataBits ) } ) "<7|8>" )
       "The number of bits per character for the serial device"
 
   , Option "s" [ "stopbits" ]
-  ( ReqArg ( \arg opt -> return opt { optStopBits = if arg == "1" then SB.OneStopBit else SB.TwoStopBits } ) "<1|2>" )
+  ( ReqArg ( \arg opt -> return opt { optStopBits = Just ( if arg == "1" then SB.OneStopBit else SB.TwoStopBits ) } ) "<1|2>" )
       "The number of stop bits per character for the serial device"
 
   , Option "P" [ "parity" ]
-  ( ReqArg ( \arg opt -> return opt { optParity = readParityArg arg } ) "<odd|even|none>" )
+  ( ReqArg ( \arg opt -> return opt { optParity = Just $ readParityArg arg } ) "<odd|even|none>" )
       "The parity setting for the serial device"
 
   , Option "x" [ "swfc" ]
-  ( NoArg ( \opt -> return opt { optSwFc = True } ) )
+  ( NoArg ( \opt -> return opt { optSwFc = Just True } ) )
       "Use software flow control on serial device [default: no flow control]"
 
   , Option "h" [ "hwfc" ]
-  ( NoArg ( \opt -> return opt { optHwFc = True } ) )
+  ( NoArg ( \opt -> return opt { optHwFc = Just True } ) )
       "Use hardware flow control on serial device [default: no flow control]"
 
   , Option "r" [ "force-daemon-restart" ]
@@ -261,5 +261,16 @@ usage_info :: String
 usage_info =  usageInfo "ser2netctl add|remove|stop|start|update|show|restart|shutdown [options]" optionDescriptions
 
 makeConfigLine :: Options -> String
-makeConfigLine opts = undefined
+makeConfigLine opts =
+  let
+    port = optPort opts
+    mode = optMode opts
+    timeout = optTimeout opts
+    dev = optTty opts
+    -- baud = optBaud opts
+    -- stop = optStopBits opts
+    -- databits = optDatabits opts
+  in
+    port ++ show mode ++ show timeout ++ dev
+    
 
