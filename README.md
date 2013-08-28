@@ -1,4 +1,4 @@
-.h1 ser2netctl
+= ser2netctl =
 
 A control program for the se2net serial to TCPIP daemon.
 
