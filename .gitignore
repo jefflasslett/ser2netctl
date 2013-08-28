@@ -7,3 +7,4 @@ cabal-dev
 *.swp
 ser2netctl
 .virthualenv
+tags
