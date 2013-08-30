@@ -11,7 +11,8 @@ import qualified System.IO.Strict as S
 
 import Text.Regex.PCRE
 
-import Options as O
+import Config
+import qualified Options as O
 import qualified Ser2net as S2N
 
 data Cmnd = Add | Remove | Start | Stop | Update | Show | Restart | Shutdown deriving ( Show, Eq )
@@ -79,7 +80,7 @@ execAdd opts =
               hPutStrLn stderr "Port already added  Perhaps you want update"
             else
               do
-                appendFile confFilename ( O.makeConfigLine opts )
+                appendFile confFilename ( makeConfigLine opts )
                 pid <- getDaemonPid opts
                 when ( O.optReload opts ) ( S2N.reloadConfig pid )
                 when ( O.optForce opts ) S2N.restartDaemon

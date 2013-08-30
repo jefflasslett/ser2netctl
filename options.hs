@@ -4,7 +4,6 @@ module Options ( Options( .. )
                , optionDescriptions
                , ArgumentException( .. )
                , usage_info
-               , makeConfigLine
                ) where
 
 import Control.Exception
@@ -259,18 +258,4 @@ optionDescriptions =
 
 usage_info :: String
 usage_info =  usageInfo "ser2netctl add|remove|stop|start|update|show|restart|shutdown [options]" optionDescriptions
-
-makeConfigLine :: Options -> String
-makeConfigLine opts =
-  let
-    port = optPort opts
-    mode = optMode opts
-    timeout = optTimeout opts
-    dev = optTty opts
-    -- baud = optBaud opts
-    -- stop = optStopBits opts
-    -- databits = optDatabits opts
-  in
-    port ++ show mode ++ show timeout ++ dev
-    
 
