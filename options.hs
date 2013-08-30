@@ -4,6 +4,7 @@ module Options ( Options( .. )
                , optionDescriptions
                , ArgumentException( .. )
                , usage_info
+               , mergeOptions
                ) where
 
 import Control.Exception
@@ -29,41 +30,43 @@ version = "0.1.0.0"
 {- These optional arguments could easily be Strings.  GetOpt handles their
  - optional nature just fine.  I like having them as Maybe values though.
  -}
-data Options = Options { optPort      :: String
-                       , optTty       :: String
-                       , optTimeout   :: Int
-                       , optMode      :: PM.PortMode
-                       , optBaud      :: Maybe BR.BaudRate
-                       , optDatabits  :: Maybe DB.DataBits
-                       , optStopBits  :: Maybe SB.StopBits
-                       , optParity    :: Maybe PA.Parity
-                       , optSwFc      :: Maybe Bool
-                       , optHwFc      :: Maybe Bool
-                       , optForce     :: Bool
-                       , optReload    :: Bool
-                       , optConfig    :: String
-                       , optPid       :: ProcessID
-                       , optPidFile   :: String
+data Options = Options { optPort         :: String
+                       , optTty          :: Maybe String
+                       , optTimeout      :: Maybe Int
+                       , optMode         :: Maybe PM.PortMode
+                       , optBaud         :: Maybe BR.BaudRate
+                       , optDatabits     :: Maybe DB.DataBits
+                       , optStopBits     :: Maybe SB.StopBits
+                       , optParity       :: Maybe PA.Parity
+                       , optSwFc         :: Maybe Bool
+                       , optHwFc         :: Maybe Bool
+                       , optForce        :: Bool
+                       , optClearTtyOpts :: Bool
+                       , optReload       :: Bool
+                       , optConfig       :: String
+                       , optPid          :: ProcessID
+                       , optPidFile      :: String
                        }
                        deriving ( Show )
 
 -- The defaults for the parameters
 defaultOptions :: Options
-defaultOptions = Options { optPort      = ""
-                         , optTty       = ""
-                         , optTimeout   = 0
-                         , optMode      = PM.Off
-                         , optBaud      = Nothing
-                         , optDatabits  = Nothing
-                         , optStopBits  = Nothing
-                         , optParity    = Nothing
-                         , optSwFc      = Nothing
-                         , optHwFc      = Nothing
-                         , optForce     = False
-                         , optReload    = True
-                         , optConfig    = "/etc/ser2net.conf"
-                         , optPid       = 0
-                         , optPidFile   = "/var/run/ser2net.pid"
+defaultOptions = Options { optPort         = ""
+                         , optTty          = Nothing
+                         , optTimeout      = Nothing
+                         , optMode         = Nothing
+                         , optBaud         = Nothing
+                         , optDatabits     = Nothing
+                         , optStopBits     = Nothing
+                         , optParity       = Nothing
+                         , optSwFc         = Nothing
+                         , optHwFc         = Nothing
+                         , optForce        = False
+                         , optClearTtyOpts = False
+                         , optReload       = True
+                         , optConfig       = "/etc/ser2net.conf"
+                         , optPid          = 0
+                         , optPidFile      = "/var/run/ser2net.pid"
                          }
 
 data ArgumentException = ArgException String deriving ( Show, Typeable )
@@ -85,34 +88,20 @@ readTtyArg arg opts =
   do
     fs <- getFileStatus arg
     unless ( isCharacterDevice fs ) ( throwIO $ ArgException ( "Serial device \"" ++ arg ++ "\" not a character device" ) )
-    return opts { optTty = arg }
+    return opts { optTty = Just arg }
 
 
-readTimeoutArg :: String -> Int
-readTimeoutArg arg =
-  fromMaybe
-    ( throw $ ArgException ( "Timeout \"" ++ arg ++ "\" is invalid" ) )
-    ( readMay arg )
+readTimeoutArg :: String -> Maybe Int
+readTimeoutArg = readMay
 
+readModeArg :: String -> Maybe PM.PortMode
+readModeArg = PM.mapStringToPortMode
 
+readBaudArg :: String -> Maybe BR.BaudRate
+readBaudArg = BR.mapStringToBaudRate
 
-readModeArg :: String -> PM.PortMode
-readModeArg arg =
-  fromMaybe
-    ( throw $ ArgException ( "Invalid port mode \"" ++ arg ++ "\"") )
-    ( PM.mapStringToPortMode arg )
-
-readBaudArg :: String -> BR.BaudRate
-readBaudArg arg =
-  fromMaybe
-    ( throw $ ArgException ( "Invalid baud rate \"" ++ arg ++ "\"") )
-    ( BR.mapStringToBaudRate arg )
-
-readParityArg :: String -> PA.Parity
-readParityArg arg =
-  fromMaybe
-    ( throw $ ArgException ( "Invalid parity \"" ++ arg ++ "\"" ) )
-    ( PA.mapStringToParity arg )
+readParityArg :: String -> Maybe PA.Parity
+readParityArg = PA.mapStringToParity
 
 readConfigArg :: String -> Options -> IO Options
 readConfigArg arg opts =
@@ -204,7 +193,7 @@ optionDescriptions =
       "The mode or protocol used to talk to the serial device"
 
   , Option "b" [ "baud" ]
-  ( ReqArg ( \arg opt -> return opt { optBaud = Just $ readBaudArg arg } ) "<baud rate>" )
+  ( ReqArg ( \arg opt -> return opt { optBaud = readBaudArg arg } ) "<baud rate>" )
       "The baud rate that the serial device should talk at"
 
   , Option "w" [ "databits" ]
@@ -216,7 +205,7 @@ optionDescriptions =
       "The number of stop bits per character for the serial device"
 
   , Option "P" [ "parity" ]
-  ( ReqArg ( \arg opt -> return opt { optParity = Just $ readParityArg arg } ) "<odd|even|none>" )
+  ( ReqArg ( \arg opt -> return opt { optParity = readParityArg arg } ) "<odd|even|none>" )
       "The parity setting for the serial device"
 
   , Option "x" [ "swfc" ]
@@ -230,6 +219,10 @@ optionDescriptions =
   , Option "r" [ "force-daemon-restart" ]
   ( NoArg ( \opt -> return opt { optForce = True } ) )
       "If present, causes ser2netctl to be restarted"
+
+  , Option "C" [ "clear-absent-tty-config" ]
+  ( NoArg ( \opt -> return opt { optClearTtyOpts = True } ) )
+      "Clear any tty options not specified on command line [Default: absent tty options preserved]"
 
   , Option "n" [ "no-config-reload" ]
   ( NoArg ( \opt -> return opt { optReload = False } ) )
@@ -259,3 +252,16 @@ optionDescriptions =
 usage_info :: String
 usage_info =  usageInfo "ser2netctl add|remove|stop|start|update|show|restart|shutdown [options]" optionDescriptions
 
+mergeOptions :: Options -> Options -> Options
+mergeOptions opts_from_file cmd_line_opts =
+  opts_from_file { optTty       = optTty      ( if isJust $ optTty      cmd_line_opts then cmd_line_opts else opts_from_file )
+                 , optTimeout   = optTimeout  ( if isJust $ optTimeout  cmd_line_opts then cmd_line_opts else opts_from_file )
+                 , optMode      = optMode     ( if isJust $ optMode     cmd_line_opts then cmd_line_opts else opts_from_file )
+                 , optBaud      = optBaud     ( if isJust $ optBaud     cmd_line_opts then cmd_line_opts else opts_from_file )
+                 , optDatabits  = optDatabits ( if isJust $ optDatabits cmd_line_opts then cmd_line_opts else opts_from_file )
+                 , optStopBits  = optStopBits ( if isJust $ optStopBits cmd_line_opts then cmd_line_opts else opts_from_file )
+                 , optParity    = optParity   ( if isJust $ optParity   cmd_line_opts then cmd_line_opts else opts_from_file )
+                 , optSwFc      = optSwFc     ( if isJust $ optSwFc     cmd_line_opts then cmd_line_opts else opts_from_file )
+                 , optHwFc      = optHwFc     ( if isJust $ optHwFc     cmd_line_opts then cmd_line_opts else opts_from_file )
+                 }
+ 

@@ -2,14 +2,16 @@ module Config where
 
 import Data.List
 import Data.List.Split
-import Data.Maybe
 
 import Text.Regex.PCRE
+
+import Safe
+
 import Options
 
 import qualified DataBits as DB
 import qualified BaudRate as BR
-import qualified Parity as PA
+import qualified Parity   as PA
 import qualified PortMode as PM
 import qualified StopBits as SB
 
@@ -18,13 +20,10 @@ makeConfigLine :: Options -> String
 makeConfigLine opts =
   let
     ttyParms = makeTtyParamsString opts
-    -- baud = optBaud opts
-    -- stop = optStopBits opts
-    -- databits = optDatabits opts
     elements = [ optPort opts
                , show $ optMode opts
                , show $ optTimeout opts
-               , optTty opts
+               , maybeToString $ optTty opts
                ]
 
     elements' = if not $ null ttyParms then elements ++ [ ttyParms ] else elements
@@ -58,11 +57,11 @@ parseConfigLine s =
     main_parts = splitOn ":" s
     port = head main_parts
     mode = PM.mapStringToPortMode ( main_parts !! 1 )
-    timeout = read ( main_parts !! 2 )
-    dev = main_parts !! 3
+    timeout = readMay ( main_parts !! 2 )
+    dev = Just $ main_parts !! 3
 
     main_opts = defaultOptions { optPort = port
-                               , optMode = fromJust mode
+                               , optMode = mode
                                , optTimeout = timeout
                                , optTty = dev
                                }
@@ -72,7 +71,7 @@ parseConfigLine s =
   in
     if is_port_cfg
       then
-        Just tty_opts
+        Just $ if length main_parts == 5 then tty_opts else main_opts
       else
         Nothing
 
