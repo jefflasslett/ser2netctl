@@ -1,4 +1,8 @@
-module Commands ( validCommand, Cmnd( .. ), mapStringToCmnd, execCommand ) where
+module Commands ( validCommand
+                , Cmnd( .. )
+                , mapStringToCmnd
+                , execCommand
+                ) where
 
 import Control.Monad
 import System.IO
@@ -20,14 +24,14 @@ data Cmnd = Add | Remove | Start | Stop | Update | Show | Restart | Shutdown der
 mapStringToCmnd :: String -> Maybe Cmnd
 mapStringToCmnd s =
   let
-    string_cmnd_map = [ ( "add", Add )
-                      , ( "remove", Remove )
-                      , ( "restart", Restart )
-                      , ( "show", Show )
-                      , ( "shutdown", Shutdown )
-                      , ( "start", Start )
-                      , ( "stop", Stop )
-                      , ( "update", Update )
+    string_cmnd_map = [ ( "add"      , Add )
+                      , ( "remove"   , Remove )
+                      , ( "restart"  , Restart )
+                      , ( "show"     , Show )
+                      , ( "shutdown" , Shutdown )
+                      , ( "start"    , Start )
+                      , ( "stop"     , Stop )
+                      , ( "update"   , Update )
                       ]
     lower_s = map toLower s
   in
@@ -53,14 +57,14 @@ getDaemonPid opts =
             Nothing -> return 0
 
 execCommand :: Cmnd -> O.Options -> IO ()
-execCommand Add opts = execAdd opts
-execCommand Remove opts = execRemove opts
-execCommand Restart opts = execRestart opts
-execCommand Show opts = execShow opts
-execCommand Start opts = execStart opts
-execCommand Stop opts = execStop opts
+execCommand Add opts      = execAdd opts
+execCommand Remove opts   = execRemove opts
+execCommand Restart opts  = execRestart opts
+execCommand Show opts     = execShow opts
+execCommand Start opts    = execStart opts
+execCommand Stop opts     = execStop opts
 execCommand Shutdown opts = execShutdown opts
-execCommand Update opts = execUpdate opts
+execCommand Update opts   = execUpdate opts
 
 
 execAdd :: O.Options -> IO ()
@@ -88,7 +92,27 @@ execAdd opts =
 
 execRemove :: O.Options -> IO ()
 execRemove opts =
-  undefined
+  let
+    pattern = "^" ++ O.optPort opts ++ ":"
+    confFilename = O.optConfig opts
+  in
+    if null $ O.optPort opts
+      then
+        hPutStrLn stderr "No port specified.  Use -p to specify port to add"
+      else
+        do
+          guts <- S.readFile ( O.optConfig opts )
+          let
+            ls = lines guts
+            filtered = filter \l -> 
+
+          if guts =~ pattern :: Bool
+            then 
+              hPutStrLn stderr "Port already added  Perhaps you want update"
+            else
+              do
+                appendFile confFilename ( makeConfigLine opts )
+                pid <- getDaemonPid opts
 
 execRestart :: O.Options -> IO ()
 execRestart opts =
