@@ -104,15 +104,13 @@ execRemove opts =
           guts <- S.readFile ( O.optConfig opts )
           let
             ls = lines guts
-            filtered = filter \l -> 
+            filtered = filter ( \l -> not $ l =~ pattern :: Bool ) ls
 
-          if guts =~ pattern :: Bool
-            then 
-              hPutStrLn stderr "Port already added  Perhaps you want update"
-            else
-              do
-                appendFile confFilename ( makeConfigLine opts )
-                pid <- getDaemonPid opts
+          writeFile confFilename ( unlines filtered )
+          pid <- getDaemonPid opts
+          when ( O.optReload opts ) ( S2N.reloadConfig pid )
+          when ( O.optForce opts ) S2N.restartDaemon
+
 
 execRestart :: O.Options -> IO ()
 execRestart opts =
