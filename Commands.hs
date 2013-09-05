@@ -113,8 +113,7 @@ execRemove opts =
 
 
 execRestart :: O.Options -> IO ()
-execRestart opts =
-  undefined
+execRestart opts = S2N.restartDaemon
 
 execStart :: O.Options -> IO ()
 execStart opts =
@@ -129,12 +128,40 @@ execShow opts =
   undefined
 
 execShutdown :: O.Options -> IO ()
-execShutdown opts =
-  undefined
+execShutdown opts = S2N.stopDaemon
 
 execUpdate :: O.Options -> IO ()
 execUpdate opts =
-  undefined
+  let
+    confFilename = O.optConfig opts
+
+    update :: O.Options -> String -> String
+    update cmdLnOpts l =
+      let
+        lineOpts = parseConfigLine l
+      in
+        case lineOpts of
+          Nothing -> l
+          Just o' -> if O.optPort o' == O.optPort opts
+                      then
+                        makeConfigLine ( O.mergeOptions o' cmdLnOpts )
+                      else
+                        l
+  in
+    if null $ O.optPort opts
+      then
+        hPutStrLn stderr "No port specified.  Use -p to specify port to update"
+      else
+        do
+          guts <- S.readFile ( O.optConfig opts )
+          let
+            ls = lines guts
+            ls' = map ( update opts ) ls
+
+          writeFile confFilename ( unlines ls' )
+          pid <- getDaemonPid opts
+          when ( O.optReload opts ) ( S2N.reloadConfig pid )
+          when ( O.optForce opts ) S2N.restartDaemon
 
 
 
