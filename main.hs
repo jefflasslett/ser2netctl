@@ -5,7 +5,7 @@ import System.Environment
 import System.Exit
 import System.IO
 
-import Control.Exception
+import qualified Control.Exception as CE
 import Control.Monad
 
 import Data.Maybe
@@ -62,7 +62,7 @@ main =
     unless ( null errors ) $ errorOut "Exiting due to bad args on the command line!" ( -1 ) True
 
     -- Here we thread startOptions through all supplied option actions
-    opts <- catch ( foldl (>>=) (return O.defaultOptions) actions ) handleArgException
+    opts <- CE.catch ( foldl (>>=) (return O.defaultOptions) actions ) handleArgException
 
     putStrLn ( show opts )
 
