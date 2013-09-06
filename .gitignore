@@ -8,3 +8,4 @@ cabal-dev
 ser2netctl
 .virthualenv
 tags
+ser2net.conf
