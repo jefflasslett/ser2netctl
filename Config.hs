@@ -2,6 +2,7 @@ module Config where
 
 import Data.List
 import Data.List.Split
+import Data.Maybe
 
 import Text.Regex.PCRE
 
@@ -21,9 +22,9 @@ makeConfigLine opts =
   let
     ttyParms = makeTtyParamsString opts
     elements = [ optPort opts
-               , show $ optMode opts
-               , show $ optTimeout opts
-               , maybeToString $ optTty opts
+               , maybeToString $ optMode opts
+               , maybeToString $ optTimeout opts
+               , if isJust ( optTty opts ) then fromJust $ optTty opts else ""
                ]
 
     elements' = if not $ null ttyParms then elements ++ [ ttyParms ] else elements
@@ -45,7 +46,7 @@ makeTtyParamsString opts =
                  , maybeToString $ optHwFc opts
                  ]
 
-    optsInUse = filter null ttyOptList
+    optsInUse = filter ( not.null ) ttyOptList
   in
     unwords optsInUse
 
