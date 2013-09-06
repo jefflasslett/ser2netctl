@@ -19,7 +19,7 @@ import Config
 import qualified Options as O
 import qualified Ser2net as S2N
 
-data Cmnd = Add | Remove | Start | Stop | Update | Show | Restart | Shutdown deriving ( Show, Eq )
+data Cmnd = Add | Remove | Update | Show | Restart | Shutdown deriving ( Show, Eq )
 
 mapStringToCmnd :: String -> Maybe Cmnd
 mapStringToCmnd s =
@@ -29,8 +29,6 @@ mapStringToCmnd s =
                       , ( "restart"  , Restart )
                       , ( "show"     , Show )
                       , ( "shutdown" , Shutdown )
-                      , ( "start"    , Start )
-                      , ( "stop"     , Stop )
                       , ( "update"   , Update )
                       ]
     lower_s = map toLower s
@@ -61,8 +59,8 @@ execCommand Add opts      = execAdd opts
 execCommand Remove opts   = execRemove opts
 execCommand Restart opts  = execRestart opts
 execCommand Show opts     = execShow opts
-execCommand Start opts    = execStart opts
-execCommand Stop opts     = execStop opts
+-- execCommand Start opts    = execStart opts
+-- execCommand Stop opts     = execStop opts
 execCommand Shutdown opts = execShutdown opts
 execCommand Update opts   = execUpdate opts
 
@@ -115,17 +113,30 @@ execRemove opts =
 execRestart :: O.Options -> IO ()
 execRestart opts = S2N.restartDaemon
 
-execStart :: O.Options -> IO ()
-execStart opts =
-  undefined
-
-execStop :: O.Options -> IO ()
-execStop opts =
-  undefined
+{-
+ -execStart :: O.Options -> IO ()
+ -execStart opts =
+ -  undefined
+ -
+ -execStop :: O.Options -> IO ()
+ -execStop opts =
+ -  undefined
+ -
+ -}
 
 execShow :: O.Options -> IO ()
 execShow opts =
-  undefined
+  let
+    port_pattern = "\\d\\+:\\w\\+:\\d\\+:/dev/\\w\\+"
+    confFilename = O.optConfig opts
+  in
+    do
+      guts <- S.readFile confFilename
+      let
+        ls = lines guts
+        portConfigLines = filter ( \l -> l =~ port_pattern :: Bool ) ls
+      mapM_ putStrLn portConfigLines
+
 
 execShutdown :: O.Options -> IO ()
 execShutdown opts = S2N.stopDaemon
@@ -153,7 +164,7 @@ execUpdate opts =
         hPutStrLn stderr "No port specified.  Use -p to specify port to update"
       else
         do
-          guts <- S.readFile ( O.optConfig opts )
+          guts <- S.readFile confFilename
           let
             ls = lines guts
             ls' = map ( update opts ) ls

@@ -250,7 +250,7 @@ optionDescriptions =
   ]
 
 usage_info :: String
-usage_info =  usageInfo "ser2netctl add|remove|stop|start|update|show|restart|shutdown [options]" optionDescriptions
+usage_info =  usageInfo "ser2netctl add|remove|update|show|restart|shutdown [options]" optionDescriptions
 
 mergeOptions :: Options -> Options -> Options
 mergeOptions opts_from_file cmd_line_opts =
