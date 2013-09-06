@@ -111,7 +111,7 @@ readConfigArg arg opts =
     fs <- getFileStatus arg
     unless ( isRegularFile fs ) $ throwIO $ ArgException ( "Config file \"" ++ arg ++ "\" is not a regular file" )
     file_accessible <- fileAccess arg True True False
-    when file_accessible $ throwIO $ ArgException ( "Permission problem with file \"" ++ arg ++ "\"" )
+    when ( not file_accessible ) $ throwIO $ ArgException ( "Permission problem with file \"" ++ arg ++ "\"" )
     return opts { optConfig = arg }
 
 readPidFileArg :: String -> Options -> IO Options
