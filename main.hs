@@ -50,6 +50,8 @@ main =
 
     when ( null args ) $ errorOut "No arguments.  I need a command arg at least!" ( -1 ) True
 
+    when ( cmndArg == "--help" ) ( putStrLn O.usage_info >> exitSuccess )
+
     unless ( C.validCommand cmndArg ) $ errorOut ( "Command \"" ++ cmndArg ++ "\" not recognised.  Game over!") ( -1 ) True
 
     -- putStrLn $ "Got command arg: " ++ cmndArg
