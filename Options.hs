@@ -212,7 +212,7 @@ optionDescriptions =
   ( NoArg ( \opt -> return opt { optSwFc = Just True } ) )
       "Use software flow control on serial device [default: no flow control]"
 
-  , Option "h" [ "hwfc" ]
+  , Option "H" [ "hwfc" ]
   ( NoArg ( \opt -> return opt { optHwFc = Just True } ) )
       "Use hardware flow control on serial device [default: no flow control]"
 
