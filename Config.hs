@@ -53,7 +53,7 @@ makeTtyParamsString opts =
 parseConfigLine :: String -> Maybe Options
 parseConfigLine s =
   let
-    port_pattern = "\\d\\+:\\w\\+:\\d\\+:/dev/\\w\\+"
+    port_pattern = "\\d+:\\w+:\\d+:/dev/\\w+"
     is_port_cfg = s =~ port_pattern :: Bool
     main_parts = splitOn ":" s
     port = head main_parts
