@@ -83,8 +83,7 @@ execAdd opts =
             else
               do
                 appendFile confFilename ( makeConfigLine opts )
-                pid <- getDaemonPid opts
-                when ( O.optReload opts ) ( S2N.reloadConfig pid )
+                when ( O.optReload opts ) ( getDaemonPid opts >>= S2N.reloadConfig )
                 when ( O.optForce opts ) S2N.restartDaemon
 
 
@@ -105,8 +104,7 @@ execRemove opts =
             filtered = filter ( \l -> not $ l =~ pattern :: Bool ) ls
 
           writeFile confFilename ( unlines filtered )
-          pid <- getDaemonPid opts
-          when ( O.optReload opts ) ( S2N.reloadConfig pid )
+          when ( O.optReload opts ) ( getDaemonPid opts >>= S2N.reloadConfig )
           when ( O.optForce opts ) S2N.restartDaemon
 
 
@@ -170,8 +168,7 @@ execUpdate opts =
             ls' = map ( update opts ) ls
 
           writeFile confFilename ( unlines ls' )
-          pid <- getDaemonPid opts
-          when ( O.optReload opts ) ( S2N.reloadConfig pid )
+          when ( O.optReload opts ) (  getDaemonPid opts >>= S2N.reloadConfig )
           when ( O.optForce opts ) S2N.restartDaemon
 
 
