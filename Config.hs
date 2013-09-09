@@ -24,7 +24,7 @@ makeConfigLine opts =
     elements = [ optPort opts
                , maybeToString $ optMode opts
                , maybeToString $ optTimeout opts
-               , if isJust ( optTty opts ) then fromJust $ optTty opts else ""
+               , fromMaybe "" ( optTty opts )
                ]
 
     elements' = if not $ null ttyParms then elements ++ [ ttyParms ] else elements
