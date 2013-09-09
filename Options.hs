@@ -257,11 +257,23 @@ mergeOptions opts_from_file cmd_line_opts =
   opts_from_file { optTty       = optTty      ( if isJust $ optTty      cmd_line_opts then cmd_line_opts else opts_from_file )
                  , optTimeout   = optTimeout  ( if isJust $ optTimeout  cmd_line_opts then cmd_line_opts else opts_from_file )
                  , optMode      = optMode     ( if isJust $ optMode     cmd_line_opts then cmd_line_opts else opts_from_file )
-                 , optBaud      = optBaud     ( if isJust $ optBaud     cmd_line_opts then cmd_line_opts else opts_from_file )
-                 , optDatabits  = optDatabits ( if isJust $ optDatabits cmd_line_opts then cmd_line_opts else opts_from_file )
-                 , optStopBits  = optStopBits ( if isJust $ optStopBits cmd_line_opts then cmd_line_opts else opts_from_file )
-                 , optParity    = optParity   ( if isJust $ optParity   cmd_line_opts then cmd_line_opts else opts_from_file )
-                 , optSwFc      = optSwFc     ( if isJust $ optSwFc     cmd_line_opts then cmd_line_opts else opts_from_file )
-                 , optHwFc      = optHwFc     ( if isJust $ optHwFc     cmd_line_opts then cmd_line_opts else opts_from_file )
+                 , optBaud      = case optClearTtyOpts cmd_line_opts of
+                                    False -> optBaud ( if isJust $ optBaud cmd_line_opts then cmd_line_opts else opts_from_file )
+                                    True -> if isJust $ optBaud cmd_line_opts then optBaud cmd_line_opts else Nothing
+                 , optDatabits  = case optClearTtyOpts cmd_line_opts of
+                                    False -> optDatabits ( if isJust $ optDatabits cmd_line_opts then cmd_line_opts else opts_from_file )
+                                    True -> if isJust $ optDatabits cmd_line_opts then optDatabits cmd_line_opts else Nothing
+                 , optStopBits  = case optClearTtyOpts cmd_line_opts of
+                                    False -> optStopBits ( if isJust $ optStopBits cmd_line_opts then cmd_line_opts else opts_from_file )
+                                    True -> if isJust $ optStopBits cmd_line_opts then optStopBits cmd_line_opts else Nothing
+                 , optParity    = case optClearTtyOpts cmd_line_opts of
+                                    False -> optParity ( if isJust $ optParity cmd_line_opts then cmd_line_opts else opts_from_file )
+                                    True -> if isJust $ optParity cmd_line_opts then optParity cmd_line_opts else Nothing
+                 , optSwFc      = case optClearTtyOpts cmd_line_opts of
+                                    False -> optSwFc ( if isJust $ optSwFc cmd_line_opts then cmd_line_opts else opts_from_file )
+                                    True -> if isJust $ optSwFc cmd_line_opts then optSwFc cmd_line_opts else Nothing
+                 , optHwFc      = case optClearTtyOpts cmd_line_opts of
+                                    False -> optHwFc ( if isJust $ optHwFc cmd_line_opts then cmd_line_opts else opts_from_file )
+                                    True -> if isJust $ optHwFc cmd_line_opts then optHwFc cmd_line_opts else Nothing
                  }
- 
+
