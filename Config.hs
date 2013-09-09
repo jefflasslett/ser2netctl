@@ -42,8 +42,14 @@ makeTtyParamsString opts =
                  , maybeToString $ optParity opts
                  , maybeToString $ optStopBits opts
                  , maybeToString $ optDatabits opts
-                 , maybeToString $ optSwFc opts
-                 , maybeToString $ optHwFc opts
+                 , case optSwFc opts of
+                     Nothing -> ""
+                     Just True -> "XONXOFF"
+                     Just False -> "-XONXOFF"
+                 , case optHwFc opts of
+                     Nothing -> ""
+                     Just True -> "RTSCTS"
+                     Just False -> "-RTSCTS"
                  ]
 
     optsInUse = filter ( not.null ) ttyOptList
@@ -88,6 +94,10 @@ parseTtyParms opts s =
             , ( "(NONE)|(ODD)|(EVEN)", \o' s' -> o' { optParity = PA.mapStringToParity s' } )
             , ( "DATABIT", \o' s' -> o' { optDatabits = DB.mapStringToDataBits s' } )
             , ( "STOPBIT", \o' s' -> o' { optStopBits = SB.mapStringToStopBits s' } )
+            , ( "^XONXOFF", \o' s' -> o' { optSwFc = Just True } )
+            , ( "^-XONXOFF", \o' s' -> o' { optSwFc = Just False } )
+            , ( "^RTSCTS", \o' s' -> o' { optHwFc = Just True } )
+            , ( "^-RTSCTS", \o' s' -> o' { optHwFc = Just False } )
             ]
 
         e = find ( \pair -> p =~ fst pair :: Bool ) m
