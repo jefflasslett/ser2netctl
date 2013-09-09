@@ -52,7 +52,7 @@ main =
 
     unless ( C.validCommand cmndArg ) $ errorOut ( "Command \"" ++ cmndArg ++ "\" not recognised.  Game over!") ( -1 ) True
 
-    putStrLn $ "Got command arg: " ++ cmndArg
+    -- putStrLn $ "Got command arg: " ++ cmndArg
 
     -- Parse options, getting a list of option actions
     let (actions, nonOptions, errors) = getOpt Permute O.optionDescriptions optArgs
@@ -64,12 +64,12 @@ main =
     -- Here we thread startOptions through all supplied option actions
     opts <- CE.catch ( foldl (>>=) (return O.defaultOptions) actions ) handleArgException
 
-    putStrLn ( show opts )
+    -- putStrLn ( show opts )
 
     -- fromJust will work as cmndArg already known valid
     C.execCommand ( fromJust $ C.mapStringToCmnd cmndArg ) opts
 
-    putStrLn "Good-bye!"
+    -- putStrLn "Good-bye!"
 
 
 
