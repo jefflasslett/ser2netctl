@@ -17,6 +17,6 @@ cabal-version:       >=1.8
 
 executable ser2netctl
   main-is:             main.hs
-  other-modules:       Options PortMode DataBits Parity StopBits BaudRate Commands Ser2net Config
-  build-depends:       base >=4.5, safe, unix, regex-pcre, strict, split
+  other-modules:       Options PortMode DataBits Parity StopBits BaudRate Commands Ser2net Config Str
+  build-depends:       base >=4.5, safe, unix, regex-pcre, strict, split, template-haskell
   ghc-options:         -static

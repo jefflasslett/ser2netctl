@@ -1,4 +1,4 @@
-{-# LANGUAGE DeriveDataTypeable #-}
+{-# LANGUAGE DeriveDataTypeable, QuasiQuotes #-}
 module Options ( Options( .. )
                , defaultOptions
                , optionDescriptions
@@ -23,6 +23,8 @@ import qualified BaudRate as BR
 import qualified StopBits as SB
 import qualified DataBits as DB
 import qualified Parity as PA
+
+import Str
 
 version :: String
 version = "0.1.0.0"
@@ -249,8 +251,20 @@ optionDescriptions =
       "Print this usage information"
   ]
 
+usagePrelude :: String
+usagePrelude = [str|
+ser2netctl add --port=<port> [options]
+ser2netctl remove --port=<port>
+ser2netctl update --port=<port> [options]
+ser2netctl show
+ser2netctl restart
+ser2netctl shutdown
+
+Options:
+|]
+
 usage_info :: String
-usage_info =  usageInfo "ser2netctl add|remove|update|show|restart|shutdown [options]" optionDescriptions
+usage_info =  usageInfo usagePrelude optionDescriptions
 
 mergeOptions :: Options -> Options -> Options
 mergeOptions opts_from_file cmd_line_opts =
