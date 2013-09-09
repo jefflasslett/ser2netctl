@@ -127,7 +127,7 @@ execRestart opts = S2N.restartDaemon
 execShow :: O.Options -> IO ()
 execShow opts =
   let
-    port_pattern = "\\d\\+:\\w\\+:\\d\\+:/dev/\\w\\+"
+    port_pattern = "\\d+:\\w+:\\d+:/dev/\\w+"
     confFilename = O.optConfig opts
   in
     do
