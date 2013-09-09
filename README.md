@@ -1,6 +1,6 @@
 # ser2netctl
 
-A control program for the se2net serial to TCPIP daemon.
+A control program for the ser2net serial to TCPIP daemon.
 
 ```
 ser2netctl add|remove|update|show|restart|shutdown [options]
