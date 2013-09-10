@@ -48,7 +48,7 @@ Options:
 ## Options
 
 <dl>
-  <dt><strong><code>-p &lt;num>, --port=&lt;num></num></num></code></code></strong></dt>
+  <dt><strong><code>-p &lt;num>, --port=&lt;num></code></strong></dt>
   <dd>The TCP/IP port number through which <code>ser2net</code> will marshal access to a given serial tty device.
     <p>
       This option must be provided with the <code>add</code>, <code>remove</code>, and <code>update</code> commands.
@@ -92,15 +92,15 @@ Options:
   <dd>The parity setting for the serial device
   </dd>
 
-  <dt><strong><code> -x, --swfc </code></strong></dt>
+  <dt><strong><code> -x, --swfc</code></strong></dt>
   <dd>Use software flow control on serial device [default: no flow control]
   </dd>
 
-  <dt><strong><code> -H, --hwfc </code></strong></dt>
+  <dt><strong><code> -H, --hwfc</code></strong></dt>
   <dd>Use hardware flow control on serial device [default: no flow control]
   </dd>
 
-  <dt><strong><code> -C, --clear-absent-tty-config </code></strong></dt>
+  <dt><strong><code> -C, --clear-absent-tty-config</code></strong></dt>
   <dd>Clear any tty options not specified on command line [Default: absent tty options preserved]
     <p>
     Use this with the <code>update</code> command.  For a given port, it will cause any option not specified on the command line to be
@@ -109,7 +109,7 @@ Options:
     </p>
   </dd>
 
-  <dt><strong><code> -n, --no-config-reload </code></strong></dt>
+  <dt><strong><code> -n, --no-config-reload</code></strong></dt>
   <dd>If present, prevents the modified ser2net.conf from being reloaded by the daemon
     <p>
     <code>ser2netctl</code> will not try to send <code>SIGHUP</code> to the daemon to reload its config.
@@ -120,7 +120,7 @@ Options:
   <dd>If present, causes <code>ser2net</code> daemon to be restarted
   </dd>
 
-  <dt><strong><code> -i &lt;pid>, --pid=&lt;pid> </code></strong></dt>
+  <dt><strong><code> -i &lt;pid>, --pid=&lt;pid></code></strong></dt>
   <dd>Use this to specify the PID of the ser2net daemon
     <p>
     This is one way to tell <code>ser2netctl</code> the process id of the <code>ser2net</code> daemon.  <code>ser2netctl</code>
@@ -139,11 +139,11 @@ Options:
   <dd>Use this to specify an alternative config file
   </dd>
 
-  <dt><strong><code> -v, --version </code></strong></dt>
+  <dt><strong><code> -v, --version</code></strong></dt>
   <dd>Print version information
   </dd>
 
-  <dt><strong><code> -h, --help </code></strong></dt>
+  <dt><strong><code> -h, --help</code></strong></dt>
   <dd>Print this usage information
   </dd>
 </dl>
