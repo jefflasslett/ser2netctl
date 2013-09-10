@@ -47,7 +47,6 @@ They provide the means to specify many aspects of a port's configuration.
 
 ## Options
 
-<div>
 <dl>
   <dt><strong><code>-p &lt;num&gt; --port=&lt;num&gt;</code></strong></dt>
   <dd>The TCP/IP port number through which <code>ser2net</code> will marshal access to a given serial tty device.
@@ -148,7 +147,6 @@ They provide the means to specify many aspects of a port's configuration.
   <dd>Print this usage information
   </dd>
 </dl>
-</div>
 
 
 ## Compiling
