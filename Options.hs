@@ -220,7 +220,7 @@ optionDescriptions =
 
   , Option "r" [ "force-daemon-restart" ]
   ( NoArg ( \opt -> return opt { optForce = True } ) )
-      "If present, causes ser2netctl to be restarted"
+      "If present, causes ser2net daemon to be restarted"
 
   , Option "C" [ "clear-absent-tty-config" ]
   ( NoArg ( \opt -> return opt { optClearTtyOpts = True } ) )
