@@ -15,15 +15,15 @@ They provide the means to specify many aspects of a port's configuration.
 
 ## Usage
 
-ser2netctl add --port=<port> [options]
-ser2netctl remove --port=<port>
-ser2netctl update --port=<port> [options]
-ser2netctl show
-ser2netctl restart
-ser2netctl shutdown
+    ser2netctl add --port=<port> [options]
+    ser2netctl remove --port=<port>
+    ser2netctl update --port=<port> [options]
+    ser2netctl show
+    ser2netctl restart
+    ser2netctl shutdown
 
-Options:
-
+    Options:
+    
       -p <port>                  --port=<port>                   The TCP/IP port number of the port of interest
       -d <tty device>            --tty=<tty device>              The character device file of the serial device
       -t <timeout seconds>       --timeout=<timeout seconds>     The number of seconds of inactivity before ser2net will close a tty
